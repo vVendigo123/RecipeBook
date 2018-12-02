@@ -24,9 +24,11 @@ namespace RecipeBook
 
             while(!done)
             {
-                Console.WriteLine("Select an action: ");
+                Console.Clear();
+                Console.WriteLine("Select an action: ");  // THIS SECTION NEEDS TO BE REWRITTEN
                 Console.WriteLine("1. Add a recipe.");
                 Console.WriteLine("2. Open a recipe.");
+                Console.WriteLine("3. Delete a recipe.");
                 Console.WriteLine("0. Exit.");
 
                 int choice = ReadInt("", 0, 3);
@@ -34,8 +36,16 @@ namespace RecipeBook
                 switch(choice)
                 {
                     case 1:
+                        Console.Clear();
+                        AddRecipe(recipes);
                         break;
                     case 2:
+                        Console.Clear();
+                        OpenRecipe(recipes);
+                        break;
+                    case 3:
+                        Console.Clear();
+                        DeleteRecipe(recipes);
                         break;
                     case 0:
                         done = true;
@@ -54,36 +64,43 @@ namespace RecipeBook
             Recipe recipe = new Recipe(name, ingredients, preparations);
             return recipe;
         }
-        static void AddRecipe(Recipe[] recipes) // simple adding recipes to an array
+        static void AddRecipe(Recipe[] recipes) // using private static variable by creating new objects of the class Recipe
         {
-            bool noSpace = true;
-            for(int i = 0; i < recipes.Length; i++)
+            if(Recipe.NumberOfRecipes() < (recipes.Length-1))
             {
-                if(recipes[i] == null)
-                {
-                    recipes[i] = CreateRecipe();
-                    noSpace = false;
-                    break;
-                }
+                recipes[Recipe.NumberOfRecipes()] = CreateRecipe();
             }
-            if (noSpace)
+            else
                 Console.WriteLine("There is no more space for new recipes. Please delete a recipe to add one");
 
         }
-        static void OpenRecipe(Recipe[] recipes) // Opening recipes is not ready yet
+        static void OpenRecipe(Recipe[] recipes) // Opening recipes is not ready yet // LIST OF RECIPES TO BE ADDED
         {
-            int numberOfRecipes = 0;
-            for(int i = 0; i < recipes.Length; i++)
+            Console.WriteLine("Currently you have {0}/{1} recipes.", Recipe.NumberOfRecipes(), recipes.Length);
+            if (Recipe.NumberOfRecipes() > 0)
             {
-                if (recipes[i] != null)
-                    numberOfRecipes++;
+                int number = ReadInt("Enter a number of a recipe: ", 0, Recipe.NumberOfRecipes());
+                if (number == 0)
+                    return;
+                recipes[number - 1].ShowContent();
             }
-            Console.WriteLine("Currently you have {0}/{1} recipes.", numberOfRecipes, recipes.Length);
-            int number = ReadInt("Enter a number of a recipe: ", 1, numberOfRecipes);
-            for(int i = 0; i < ; i++)
+            Console.ReadKey();
+        }
+
+        static void DeleteRecipe(Recipe[] recipes)
+        {
+            Console.WriteLine("Currently you have {0}/{1} recipes.", Recipe.NumberOfRecipes(), recipes.Length);
+            if (Recipe.NumberOfRecipes() > 0)
             {
-                // End this
+                int number = ReadInt("Enter a number of a recipe to delete: ", 0, Recipe.NumberOfRecipes());
+                if (number == 0)
+                    return;
+                recipes[number - 1] = recipes[Recipe.NumberOfRecipes()-1];
+                recipes[Recipe.NumberOfRecipes() - 1] = null;
+                Recipe.Delete();
+                Console.WriteLine("Recipe number {0} was deleted succesfully.", number);
             }
+            Console.ReadKey();
         }
 
         // Reading STRING
