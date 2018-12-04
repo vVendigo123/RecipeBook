@@ -1,16 +1,19 @@
 ﻿using System;
+using System.Data;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using MySql.Data;
+using MySql.Data.MySqlClient;
+
 namespace RecipeBook
 {
     class Program
-    {
+    {       
         static void Main(string[] args)
         {
-            Console.WriteLine("Simple RecipeBook");
             bool done = false;
 
             const int maxNumber = 100;
@@ -21,6 +24,15 @@ namespace RecipeBook
             {
                 recipes[i] = null;
             }
+
+            int[] deletedIds = new int[maxNumber];
+
+            //Loading recipes from Database!
+
+            LoadRecipes(maxNumber, recipes);
+            Console.Clear();
+            Console.WriteLine("\t\t\t\tSimple RecipeBook");
+            Console.ReadKey();
 
             while(!done)
             {
@@ -45,9 +57,10 @@ namespace RecipeBook
                         break;
                     case 3:
                         Console.Clear();
-                        DeleteRecipe(recipes);
+                        DeleteRecipe(maxNumber, recipes, deletedIds);
                         break;
                     case 0:
+                        UpdateRecipes(Recipe.NumberOfRecipes(), recipes, deletedIds);//UpdateRecipes(Recipe.NumberOfRecipes(), recipes);
                         done = true;
                         break;
                     default:
@@ -82,12 +95,13 @@ namespace RecipeBook
                 int number = ReadInt("Enter a number of a recipe: ", 0, Recipe.NumberOfRecipes());
                 if (number == 0)
                     return;
+                Console.Clear();
                 recipes[number - 1].ShowContent();
             }
             Console.ReadKey();
         }
 
-        static void DeleteRecipe(Recipe[] recipes)
+        static void DeleteRecipe(int maxNumber, Recipe[] recipes, int[] deletedIds)
         {
             Console.WriteLine("Currently you have {0}/{1} recipes.", Recipe.NumberOfRecipes(), recipes.Length);
             if (Recipe.NumberOfRecipes() > 0)
@@ -95,12 +109,86 @@ namespace RecipeBook
                 int number = ReadInt("Enter a number of a recipe to delete: ", 0, Recipe.NumberOfRecipes());
                 if (number == 0)
                     return;
-                recipes[number - 1] = recipes[Recipe.NumberOfRecipes()-1];
+                for(int i = 0; i < maxNumber; i++)
+                {
+                    if(deletedIds[i] == 0)
+                    {
+                        deletedIds[i] = recipes[number-1].Id;
+                        break;
+                    }
+                }
+                recipes[number - 1] = recipes[Recipe.NumberOfRecipes() - 1];
                 recipes[Recipe.NumberOfRecipes() - 1] = null;
                 Recipe.Delete();
                 Console.WriteLine("Recipe number {0} was deleted succesfully.", number);
             }
             Console.ReadKey();
+        }
+
+        static void LoadRecipes(int maxNumber, Recipe[] recipes)
+        {
+            //Establishing connection with local MySql Database
+            string connectionString = "server=localhost;user=vvendigo;database=recipe_book_db;port=3306;password=password";
+            MySqlConnection connection = new MySqlConnection(connectionString);
+            try
+            {
+                Console.WriteLine("Connecting to MySQL...");
+                connection.Open();
+
+                string sql = $"SELECT * FROM recipes LIMIT {maxNumber};";
+                MySqlCommand command = new MySqlCommand(sql, connection);
+                MySqlDataReader reader = command.ExecuteReader();
+                int index = 0;
+                while(reader.Read())
+                {
+                    recipes[index] = new Recipe(reader["name"].ToString(), reader["ingredients"].ToString(), 
+                        reader["preparations"].ToString(), int.Parse(reader["id"].ToString()));
+                    index++;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
+            connection.Close();
+        }
+        static void UpdateRecipes(int numberOfRecipes, Recipe[] recipes, int[] deletedIds)
+        {
+            //Establishing connection with local MySql Database
+            string connectionString = "server=localhost;user=vvendigo;database=recipe_book_db;port=3306;password=password";
+            MySqlConnection connection = new MySqlConnection(connectionString);
+            try
+            {
+                Console.WriteLine("Connecting to MySQL...");
+                connection.Open();
+
+                string sql = "";
+                MySqlCommand command = new MySqlCommand(sql, connection);
+                for(int i = 0; i < deletedIds.Length; i++)
+                {
+                    if(deletedIds[i] != 0)
+                    {
+                        command.CommandText = $"DELETE FROM recipes WHERE id='{deletedIds[i]}';";
+                        command.ExecuteNonQuery();
+                    }
+                }
+                for(int i = 0; i < numberOfRecipes; i++)
+                {
+                    Console.WriteLine(numberOfRecipes);
+
+                    if (recipes[i].Id == 0)
+                    {
+                        command.CommandText = "INSERT INTO recipes(name, ingredients, preparations)" +
+                                $"VALUES('{recipes[i].Name}', '{recipes[i].Ingredients}', '{recipes[i].Preparations}');";
+                        command.ExecuteNonQuery();
+                    }
+                };
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
+            connection.Close();
         }
 
         // Reading STRING

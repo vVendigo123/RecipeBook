@@ -11,7 +11,8 @@ namespace RecipeBook
         public string Name { get; }
         public string Ingredients { get; }
         public string Preparations { get; }
-        private static int numberOfRecipes = 0;
+        public int Id { get; }
+        private static int numberOfRecipes = 0;   // READ ABOUT INITIALIZING static variables!!!
         //public int Number { get; set; }
 
         public Recipe(string name, string ingredients, string preparations)
@@ -20,6 +21,15 @@ namespace RecipeBook
             Name = name;
             Ingredients = ingredients;
             Preparations = preparations;
+            Id = 0;
+        }
+        public Recipe(string name, string ingredients, string preparations, int id)
+        {
+            numberOfRecipes++;
+            Name = name;
+            Ingredients = ingredients;
+            Preparations = preparations;
+            Id = id;
         }
         public void ShowContent()  // simple drawing the content on screen
         {
