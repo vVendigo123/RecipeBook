@@ -60,7 +60,7 @@ namespace RecipeBook
                         DeleteRecipe(maxNumber, recipes, deletedIds);
                         break;
                     case 0:
-                        UpdateRecipes(Recipe.NumberOfRecipes(), recipes, deletedIds);//UpdateRecipes(Recipe.NumberOfRecipes(), recipes);
+                        UpdateRecipes(Recipe.NumberOfRecipes(), recipes, deletedIds);
                         done = true;
                         break;
                     default:
@@ -155,7 +155,7 @@ namespace RecipeBook
         static void UpdateRecipes(int numberOfRecipes, Recipe[] recipes, int[] deletedIds)
         {
             //Establishing connection with local MySql Database
-            string connectionString = "server=localhost;user=vvendigo;database=recipe_book_db;port=3306;password=password";
+            string connectionString = "server=localhost; user=vvendigo;database=recipe_book_db;port=3306;password=password";
             MySqlConnection connection = new MySqlConnection(connectionString);
             try
             {
@@ -174,8 +174,6 @@ namespace RecipeBook
                 }
                 for(int i = 0; i < numberOfRecipes; i++)
                 {
-                    Console.WriteLine(numberOfRecipes);
-
                     if (recipes[i].Id == 0)
                     {
                         command.CommandText = "INSERT INTO recipes(name, ingredients, preparations)" +

@@ -34,8 +34,8 @@ namespace RecipeBook
         public void ShowContent()  // simple drawing the content on screen
         {
             Console.WriteLine("Recipe name: {0}", Name);
-            Console.WriteLine("Ingredients: {0}", Ingredients);
-            Console.WriteLine("Preparations: {0}", Preparations);
+            Console.WriteLine("\nIngredients:\n{0}", Ingredients);
+            Console.WriteLine("\nPreparations:\n{0}", Preparations);
         }
         public static int NumberOfRecipes()
         {
